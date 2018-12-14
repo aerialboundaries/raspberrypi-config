@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="es-mx">
+
+<head>
+  <meta charset="utf-8">
+  <title>Raspberry Pi Memorándum</title>
+  <link rel="stylesheet" type="text/css" href="raspberrypi.css">
+</head>
+
+<body>
+  <header class="top">
+    <h1>Preparar Raspberry Pi</h1>
+  </header>
+
+  <section id="ensamblar" class="box">
+    <div class="box-title">Ensamblar Raspberry Pi Starter Kit</div>
+    <p>
+      Me compré <a href="https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html">Raspberry Pi 3 Model B+
+        Starter Kit</a> de CanaKit. Es disponible en <a href="https://www.amazon.com.mx/gp/product/B07BCC8PK7/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1">amazon.com.mx</a>.
+      Además del Kit, se necesitan un teclado de USB, ratón de USB, y una pantalla con HDMI para empezar. El kit
+      contiene guía de instalación y es muy fácil ensamblar el Kit.
+    </p>
+    <p>Conecta un teclado, ratón por USB y una pantalla por HDMI. Si tiene Wifi, tu Raspberry Pi ya está listo. Si no
+      hay Wifi, conecta el cable de LAN.
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="raspbian" class="box">
+    <div class="box-title">Instarar OS (Raspbian)</div>
+    <p>
+      El kit incluye un micro SD de 32GB con el software "NOOBS" para instalar OS. Al encender Raspberry Pi, un diálogo
+      aparece en la pantalla como sigue.
+    </p>
+    <div class="center">
+      <img id="noobs" src="images/noobs.png" alt="Diálogo de Noobs">
+    </div>
+    <p>
+      Elije Raspbian y empezar instalación. En cuanto se termina instalación, se aparece un wizard para
+      configuración
+      inicial.
+    </p>
+    <ol>
+      <li>Set Country: Configurar País, Idioma y Zona de tiempo</li>
+      <li>Change Password: Cambiar contraseña del usuario predeterminado "pi" por la seguridad.</li>
+      <li>Select WiFi Network: Elije tu red de Wifi, si se necesita.</li>
+      <li>Check For Updates: Actualizar el sistema.</li>
+    </ol>
+    <p>
+      Raspberry Pi se reinicia y se aparece desktop.
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="rootpass" class="box">
+    <div class="box-title">Configurar contraseña de "root"</div>
+    <p>
+      El usuario "root" de Raspberry Pi no tiene contraseña predeterminada. Por eso, cualquier persona puede acceder al
+      sistema. Entonces, vamos a agregar la contraseña de "root" para seguridad.
+    </p>
+    <p>
+      Para hacer eso, vamos a lanzar el terminal y ingresar comandos.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo passwd root
+      </p>
+    </div>
+    <p>
+      Ingresa nuevo contraseña 2 veces para activarla.
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="usuario" class="box">
+    <div class="box-title">Configurar usuario para operaciones</div>
+    <p>
+      Para fortalecer la seguridad, agregamos nuevo usuario para las operaciones diarias. Por ejemplo, agregamos
+      usuario "taco8"
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo adduser <span class="red">taco8</span>
+      </p>
+    </div>
+    <p>
+      Ingresa nuevo contraseña 2 veces para activarla.
+    </p>
+    <p>
+      Vamos a darle el nuevo usuario "taco8" la misma autoridad que "pi". Primero, vamos a checar los grupos de "pi".
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ groups pi
+      </p>
+    </div>
+    <p>
+      Se muestra los grupos de "pi". Agregamos todos los grupos a "tako8" como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo usermod -G pi,adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,netdev,input,spi,gpio <span class="red">taco8</span>
+      </p>
+    </div>
+    <p>
+      Copiamos los archivos de "pi" a "taco8"
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ cp -r /home/pi/*/home/taco8
+      </p>
+    </div>
+    <p>
+      Confirma que puedes acceder al sistema por el nuevo usuario.
+    </p>
+    <p>
+      Ahora, puedes eliminar el usuario "pi" o cambiar nombre de "pi" o dejarlo.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para eliminar "pi"</span>
+      <p>
+        $ sudo userdel -r <span class="red">pi</span>
+      </p>
+    </div>
+    <div class="codebox">
+      <span class="code-title">Comando para re-nombrar "pi" a "newpi"</span>
+      <p>
+        $ sudo usermod -l newpi <span class="red">pi</span>
+      </p>
+    </div>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="vnc" class="box">
+    <div class="box-title">Activar VNC para control remoto</div>
+    <p>
+      Raspberry Pi con Raspbian cuenta con "VNC Server". VNC representa "Virtual Network Computing". Activando
+      VNC en tu Raspberry Pi, puedes operar Raspberry desde otros dispositivos como Windows, Mac, Smart Phone, iPhone,
+      etc a través de "VNC Viewer" instalado. Este significa que ya no necesitas teclados, pantalla y ratón conectado a
+      Raspberry Pi para operarlo. Puedes hacerlo por remoto desde tu dispositivo favorable.
+    </p>
+    <p>
+      VNC cuenta con servicio de nube. Por eso, no necesitas abrir puertos de tu ruteador para controlar Raspberry Pi
+      afuera de LAN. Es fácil, seguro, y además, es un servicio gratis con el plan de "HOME".
+    </p>
+    <h2>1. Tomar cuenta de RealVNC</h2>
+    <p>
+      Accede <a href="https://manage.realvnc.com/pricing">RealVNC</a> y registra tu cuenta desde "Sign in" ubicado en
+      derecha arriba.
+    </p>
+    <h2>2. Activar VNC en Raspberry Pi</h2>
+    <p>
+      Menu --&gt; Preferences --&gt; Raspberry Pi Configuration<br>
+      Ingresar contraseña de usuario.<br>
+      Elije tabla de "interfaces"<br>
+      Activa VNC como sigue.<br>
+      <div class="center">
+        <img src="images/interfaces.png" alt="interface tab">
+      </div>
+    </p>
+    <p>
+      También configura "resolution" en la tabla de "System". Para VNC, "1,280 x 720" es recomendable por velocidad y
+      compatibilidad con otros dispositivos.
+      <div class="center">
+        <img src="images/system.png" alt="system tab">
+      </div>
+    </p>
+    <h2>3. Configurar la cuenta de VNC</h2>
+    <p>
+      Haz clic derecho al icono de VNC que está ubicado en la barra de herramientas y elije "Licensing".
+      <div class="center">
+        <img src="images/vnc-license.png" alt="VNC license">
+      </div>
+    </p>
+    <p>
+      3-1. Elije "Sign in to your RealVNC account"<br>
+      3-2. Ingresa las informaciones de tu cuenta de RealVNC.<br>
+      3-3. Elije "Direct and cloud connectivity"
+    </p>
+    <h2>4. Configuración de VNC viewer</h2>
+    <p>
+      Para acceder tu Raspberry Pi desde otros dispositivos, necesitas VNC Viewer.
+    </p>
+    <p>
+      4-1. Descarga y Instalar VNC Viewer
+      <a href="https://www.realvnc.com/en/connect/download/viewer/">https://www.realvnc.com/en/connect/download/viewer/</a><br>
+      4-2. Ingresa las informaciones de tu cuenta de RealVNC.<br>
+      4-3. Confirma que puedes conectar a tu Raspberry Pi desde otros despsitivos directamente y a través de nube.
+    </p>
+    <h2>5. Preparar Raspberry como "Headless Server"</h2>
+    <p>
+      Ya que puedes controlar Raspberry Pi a través de VNC por otros dispositivos, no necesitas teclado, ni ratón, ni
+      pantalla conectados. Entonces, desconecta estos dispositivos y lleva tu Raspberry Pi al lado de ruteador y
+      conéctalos directamente por cable de LAN para ganar más velocidad. Haz clic derecho al icono de wifi en la barra
+      de herramientas y elije interface de "eth0" que es conexión por cable. Ahora tu Rasperry Pi tiene solo cable de
+      alimentación y LAN. Tu Raspberry Pi está listo para ser "Headless Server".
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="vim" class="box">
+    <div class="box-title">Instalar vim</div>
+    <p>
+      Es inevitable usar un editor de texto sobre el terminal para editar los archivos de configuraciones
+      eficientemente.
+    </p>
+    <p>
+      Raspberry Pi cuenta con el editor "nano" para eso. Es fácil de usar y suficiente para uso general. Pero, "vim" es
+      más popular como un editor de Linux. Entonces, vamos a instalar vim.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para instalar vim</span>
+      <p>
+        $ sudo apt-get update<br>
+        $ sudo apt-get install vim
+      </p>
+    </div>
+    <p>
+      Al instalar vim, vamos a agregar unos plug-ins y configurar .vimrc.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para instalar vim-plug</span>
+      <p>
+        $ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \<br>
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      </p>
+    </div>
+    <div class="codebox">
+      <span class="code-title">Ejemplo: ~/.vimrc</span>
+      <p>
+        set autoread "Reload if the file is modified<br>
+        set background=dark<br>
+        set backspace=indent,eol,start "To delete these with BS key<br>
+        set cursorline "Highlight the row on the cursor<br>
+        set expandtab "Enable soft tab (space instead of tab)<br>
+        set hidden "Enable to open other file while the buffer is being edited<br>
+        set hlsearch "Highlight the searched word<br>
+        set ignorecase "If searched with lower case, ignore the case<br>
+        set incsearch "Incremental search<br>
+        set laststatus=2 "Always show status line<br>
+        set nobackup "Do not create backup file before overwriting<br>
+        set noswapfile "No swap file<br>
+        set number "Set row number<br>
+        set ruler "Show ruler<br>
+        set shiftwidth=2 "indent width in auto indent<br>
+        set showcmd "Show the command being input<br>
+        set showmatch "Show the corresponding parenthesis<br>
+        set smartcase "If searched with upper case, distiguish upper case<br>
+        set smartindent "Smart indent<br>
+        set tabstop=2 "Set width of tab in the file<br>
+        set virtualedit=onemore "Enable to move the 1 char after line end<br>
+        set wildmode=list:longest "Complement command line<br>
+        set wrapscan "Go back to the top after searching to the last<br>
+        nmap &lt;Esc&gt;&lt;Esc&gt; :nohlsearch&lt;CR&gt;&lt;Esc&gt; "Disenable highlight with ESC's<br>
+        syntax on<br>
+        <br>
+        "Vim-plug<br>
+        call plug#begin()<br>
+        Plug 'w0rp/ale'<br>
+        Plug 'pangloss/vim-javascript'<br>
+        Plug 'mattn/emmet-vim'<br>
+        Plug 'tpope/vim-surround'<br>
+        Plug 'tyru/caw.vim'<br>
+        Plug 'scrooloose/nerdtree'<br>
+        Plug 'altercation/vim-colors-solarized'<br>
+        call plug#end()<br>
+        <br>
+        "Solarized color scheme setting<br>
+        colorscheme solarized<br>
+      </p>
+    </div>
+    <p>
+      Para instalar plug-ins agregado en .vimrc, :PlugInstall
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="capture" class="box">
+    <div class="box-title">Instalar Screen Capture</div>
+    <p>
+      Captura de pantalla es un software muy útil para hacer documentos sobre el uso de computadora como esta página.
+      "Spectacle" es un software recomendable para hacer la captura.
+    </p>
+    <p>
+      Esta vez, vamos a instalar "spectacle" a través de GUI en vez de terminal porque el software es para capturar
+      GUI.<br>
+      Menu --&gt; Preferences --&gt; Add/Remove Software<br>
+      Ingresa "spectacle" en la caja de busqueda y instalar.
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="japanese" class="box">
+    <div class="box-title">Agregar idioma japonés</div>
+    <p>
+      Ahora bien, soy japonés. ¿Te diste cuenta de que mi español es extraño? De todos modos, necesito método para
+      ingresar japonés.
+    </p>
+    <p>
+      Para ingresar japnés, tengo que instalar los siguientes.
+      <ul>
+        <li>Fuente japonesa</li>
+        <li>Método de entrada</li>
+      </ul>
+    </p>
+    <h2> 1. Fuente japonesa</h2>
+    <p>
+      Voy a instalar "IPA font"
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo apt-get install fonts-ipafont fonts-ipaexfont
+      </p>
+    </div>
+    <p>
+     Para Método de entrada, instalo "Mozc".
+    </p>
+    <div class="codebox">
+        <span class="code-title">Comando</span>
+        <p>
+          $ sudo apt-get install fcitx-mozc<br>
+          $ sudo reboot
+        </p>
+      </div>
+      <p>
+        Después, hago clic derecho al icono de idioma en la barra de herramienta y inhabilito la opción "Only Show Current Language".  Se aparece Mozc en el menu y lo agrego al sistema.  Configurar para que "Keyboard-English(US)" aparece en primero, y Mozc en segundo.  Para activar Mozc, ingreso [ctrl] + [espacio].
+      </p>
+      <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <footer>
+    2018, pezmx.hopto.org
+  </footer>
+</body>
+
+</html>

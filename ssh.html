@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es-mx">
+
+<head>
+  <meta charset="utf-8">
+  <title>Raspberry Pi Memorándum</title>
+  <link rel="stylesheet" type="text/css" href="raspberrypi.css">
+</head>
+
+<body>
+  <header class="top">
+    <h1>Configurar SSH (Secure Shell)</h1>
+  </header>
+
+  <section id="activar-ssh" class="box">
+    <div class="box-title">Activar SSH Server en Raspberry Pi</div>
+    <p>
+      Menu --&gt; Preferences --&gt; Raspberry Pi Configuration<br>
+      Ingresar contraseña de usuario.<br>
+      Elije tabla de "interfaces"<br>
+      Activa SSH como sigue.<br>
+      <div class="center">
+        <img src="images/interfaces.png" alt="interface tab">
+      </div>
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="windows" class="box">
+    <div class="box-title">Configurar SSH Cliente en Windows</div>
+    <p>
+      Ahora tu Raspberry Pi funciona como un servidor de SSH. Para conectarlo desde windows, vamos a preparar SSH
+      cliente.
+    </p>
+    <h2>Windows 10</h2>
+    <p>
+      En caso de Windows 10, vamos a usar "Windows Subsystem for Linux" (WSL), según <a href="https://docs.microsoft.com/es-mx/windows/wsl/install-win10">https://docs.microsoft.com/es-mx/windows/wsl/install-win10</a>.
+    </p>
+    <p>
+      Ya puedes usar WLS como cliente de SSH. Pero el terminal de WSL no se ve bien. Entonces, vamos a instalar <a href="https://github.com/mintty/wsltty">wsltty</a>
+      que funciona como terminal de linux. Descarga versión más reciente desde <a href="https://github.com/mintty/wsltty/releases">"release
+        page"</a>. Efectúa el wsltty-x.x.x-install.exe. Hay posibilidad de que aparezca alerta de Windows Defender y
+      suspende la instalación. Entonces, oprima "Detail information" y aparecerá botón de "efectuar". En dialogo de
+      confirmación, elige "OK" para finalizar instalación.
+    </p>
+    <p>
+      Wsltty instala 2 iconos en task bar.
+    </p>
+    <ul>
+      <li>Ubuntu Terminal -- Terminal empieza en home de Ubuntu (ex: /home/taco8)</li>
+      <li>Ubuntu Terminal% -- Terminal empieza en home de Windows (ex: /mnt/c/users/taco8)</li>
+    </ul>
+    <h2>Windows 7, 8, Vista</h2>
+    <p>
+      En caso de Windows 7, 8, Vista, vamos a usar cygwin. Descarga setup.exe desde <a href="http://www.cygwin.com/">http://www.cygwin.com/</a>
+      y instalar.
+    </p>
+    <p>
+      Los paquetes de instalación, los siguientes son recomendables.
+    </p>
+    <ul>
+      <li>git-svn</li>
+      <li>screen</li>
+      <li>wget</li>
+      <li>make</li>
+      <li>openssh</li>
+      <li>openssl</li>
+      <li>vim</li>
+    </ul>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="fixedip" class="box">
+    <div class="box-title">Asignar IP fija para Raspberry Pi</div>
+    <p>
+      Edita /etc/dhcpcd.conf como sigue.<br>
+      <div class="codebox">
+        <span class="code-title">/etc/dhcpcd.conf</span>
+        <p>
+          interface eth0
+          static ip_address=192.168.15.30/24
+          static routers=192.168.15.1
+          static domain_name_servers=xxx.xxx.xxx.xxx xxx.xxx.xxx.xxx
+          static domain_search=
+        </p>
+      </div>
+      <p>
+        EL ejemplo es para la conexión de LAN por cable. Fijamos IP de Raspberry Pi a 192.168.15.30 por Ejemplo. En
+        caso de axtel x-tremo con ruteador ZNID24xxA-Router, puedes acceder el ruteardor por browser con
+        "192.168.15.1" y el usuario predeterminado es "user" y la contraseña predeterminado es también "user". En el menú
+        de ruteador, Configracion --&gt; Interfaces muestra los servidores de DNS primary y secondary. Hay que
+        registrar los IP's de DNS en dhcpcd.conf como arriba.
+      </p>
+      <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="sshport" class="box">
+    <div class="box-title">Cambiar el puerto de SSH</div>
+    <p>
+      El puerto predeterminado para SSH es 22. Pero para fortalecer la seguridad, vamos a cambiar el numero de puerto,
+      por ejemplo, a 50123.
+    </p>
+    <p>
+      Para hacer eso, vamos a configurar /etc/ssh/sshd_config para que reemplazar el numero de puerto de 22 a 50123.
+    </p>
+    <div class="codebox">
+      <span class="code-title">/etc/ssh/sshd_config</span>
+      <p>
+        Port 50123
+      </p>
+    </div>
+    <p>
+      Reinicia SSH
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo /etc/init.d/ssh restart
+      </p>
+    </div>
+    <p>
+      Prueba de conexión con usuario "taco8" Desde otro computadora dentro de LAN, ingresa comando de SSH como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ ssh taco8@192.168.15.30 -p 50123
+      </p>
+    </div>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="firewall" class="box">
+    <div class="box-title">Configurar firewall (UFW)</div>
+    <p>
+      Para fortalecer la seguridad, vamos a establecer firewall. Primero, vamos a instalar firewall "ufw".
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para Instalar ufw</span>
+      <p>
+        $ sudo apt-get install ufw
+      </p>
+    </div>
+    <p>
+      Checamos el estado de firewall. Acabamos de instalar y el estado es todavía "inactive".
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo ufw status<br>
+        Status: inactive
+      </p>
+    </div>
+    <p>
+      Activamos firewall como sigue:
+      <ol>
+        <li>Desactivar firewall</li>
+        <li>Rechazar todos los conexiones desde fuera</li>
+        <li>Permitir solo puerto 50123</li>
+        <li>Activar firewall</li>
+      </ol>
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para configurar firewall</span>
+      <p>
+        $ sudo ufw disable<br>
+        $ sudo ufw default deny<br>
+        $ sudo ufw allow 50123<br>
+        $ sudo ufw enabale
+      </p>
+    </div>
+    <p>
+      Vamos a checar el estado de firewall otra vez.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo ufw status<br>
+        Status: active<br>
+        <br>
+        To Action From<br>
+        -- ------ ------<br>
+        50123 ALLOW Anywhere
+      </p>
+    </div>
+    <p>
+      Ahora estamos listos para abrir este puerto 50123 al internet para conectar al Raspberry Pi por SSH desde fuera
+      de LAN.
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="portforwarding" class="box">
+    <div class="box-title">Configurar ruteador para desviación del puerto</div>
+    <p>
+      SSH a través de internet primero accede at tu ruteardor por Global IP. Para checar tu Global IP, accede a la
+      página de ruteador 192.168.15.1 (usuario: user Contraseña: user) y elige Configuration --&gt; Interfaces. Global
+      ID está en la sección de IP Configuration, abajo de eth0.v502. Puedes ver global IP Address como
+      187.XXX.XXX.XXX.
+    </p>
+    <p>
+      Ahora, vamos a hacer desviación de puerto (port fowarding) en el ruteardor para que el ruteador desvía SSH
+      recibido desde internet a local IP de Raspberry Pi (192.168.15.30:50123).
+    </p>
+    <p>
+      Accede al ruteardor 192.168.15.1 por web browser. (usuario: user contraseña: user) En menú de "Configuration",
+      elige "Port Forwarding". Y configura como sigue.
+    </p>
+    <ul>
+      <li>Name: SSH</li>
+      <li>Type: Range</li>
+      <li>Port Start: 50123 Port End: 50123</li>
+      <li>Protocol: TCP</li>
+      <li>NAT Interface: eth0.v502</li>
+      <li>Private IP Address: 192.168.15.30</li>
+    </ul>
+    <p>
+      Con ésta configuración, ahora puedes conectar a tu Raspberry Pi por SSH desde fuera de LAN, usando Global IP de tu
+      ruteador como sigue. Puedes probar conexión afuera de LAN con tu computadora conectado a Smartfone por tethering.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ ssh taco8@<span class="red">187.XXX.XXX.XXX -p 50123</span>
+      </p>
+    </div>
+
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="noip" class="box">
+    <div class="box-title">Configurar DDNS por No-IP</div>
+    <h2>Registrar a No-IP</h2>
+    <p>
+      Vamos a tomar domain para ligar tu Global ID desviado a Raspberry Pi y un nombre de domain. No-IP es un servicio
+      de DDNS que ofrece un plan de domain gratis.
+    </p>
+    <p>
+      Primero, toma cuenta de <a href="https://www.noip.com" alt="noip com">https://www.noip.com</a>. Elige "sign up" y
+      ingresa tus informaciones. Puedes cambiar hostname después. Recibirás un correo desde noip para confirmación. Haz
+      login desde ese correo a la pantalla de administración. Registra hostname deseado.
+    </p>
+    <h2>Instalar software</h2>
+    <p>
+      Segundo, haz configuración de "noip DUC" que es un software para actualizar la relación entre hostname y tu global
+      ip. Abre el terminal de Raspberry Pi y configura como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para descargar noip DUC</span>
+      <p>
+        $ sudo wget http://www.noip.com/client/linux/noip-duc-linux.tar.gz
+      </p>
+    </div>
+    <p>
+      Instala el software descargado como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para instalar noip DUC</span>
+      <p>
+        $ sudo tar zxvf noip-duc-linux.tar.gz<br>
+        $ ls &lt;-- checa la ubicación de archivo descargado.<br>
+        $ cd noip-2.1.9-1/ &lt;-- mueve te al directorio del archivo.<br>
+        $ sudo make<br>
+        $ sudo make install
+      </p>
+    </div>
+    <p>
+      Contesta a las preguntas.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Contesta</span>
+      <p>
+        Please enter the login/email string for no-ip.com USER ID &lt;-- Dirección de tu correo
+        Please enter the password for user 'USER ID' &lt;-- Contraseña
+        Only one host [XXXXX.no-ip.biz] is registered to this account.
+        It will be used.
+        Please enter an update interval:[30] 30
+        Do you wish to run something at successful update?[N] (y/N) n
+        New configuration file '/usr/local/etc/no-ip2.conf' created.
+      </p>
+    </div>
+    <p>
+      Así se ha creado un archivo "noip2" en /usr/local/bin. Y "no-ip2.conf" en /usr/local/etc. Ahora, vamos a lanzar
+      el software.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando para lanzar noip DUC</span>
+      <p>
+        $ sudo /usr/local/bin/noip2
+      </p>
+    </div>
+    <h2>Activar Software Automáticamente</h2>
+    <p>
+      Copia debian.noip2.sh a /etc/init.d con nombre de "noip2"
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo cp debian.noip2.sh /etc/init.d/noip2
+      </p>
+    </div>
+    <p>
+      Y regístralo en la activación automática
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo chkconfig --add noip2
+      </p>
+    </div>
+    <p>
+      Ahora, reinicia Raspberry Pi.
+    </p>
+    <p>
+      El software actualizará el registro de IP en No-IP, cuando haya cambio de tu global IP. Pero, la cuenta gratis de
+      No-IP se desaparecerá si no haces login más de 2 meses. Por eso, hay que hacer actualización de IP
+      periódicamente. Para realizar eso, vamos a usar el comando "cron". Primero, escribe un script noip.sh en
+      /etc/cron.weekly/.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo vi /etc/cron.weekly/noip.sh
+      </p>
+    </div>
+    <p>
+      Contenido de noip.sh sería como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        #!/bin/sh<br>
+        USERNAME=xxxxxxx　　　　　# &lt;--Usuario o correo de noip.com<br>
+        PASSWORD=*******　　　　　# &lt;--Contraseña de noip.com<br>
+        HOSTS='*******.org' # &lt;--Tu domain<br>
+        <br>
+        CHECKIP=`wget --no-verbose -O - http://checkip.dyndns.org/ 2>/dev/null`<br>
+        IP=`expr "$CHECKIP" : '.* ¥([0-9]*¥.[0-9]*¥.[0-9]*¥.[0-9]*¥).*'`<br>
+        echo $IP<br>
+        <br>
+        for HOST in $HOSTS<br>
+        do<br>
+        STAT=`wget --no-verbose -O -
+        "http://dynupdate.no-ip.com/update.php?username=$USERNAME&pass=$PASSWORD&host=$HOST&ip=$IP" 2>/dev/null`<br>
+        echo "$HOST: $STAT"<br>
+        done
+      </p>
+    </div>
+    <p>
+      Cambia el dueño de noip.sh a tu usuario. (En este caso taco8)
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo chown taco8 noip.sh
+      </p>
+    </div>
+    <p>
+      Cambia permisión de noip.sh
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo chmod 600 /etc/cron.weekly/noip.sh
+      </p>
+    </div>
+    <p>
+      Raspbian no cuenta con el comando crontab. Entonces, editamos el archivo directamente.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        $ sudo vi /etc/crontab
+      </p>
+    </div>
+    <p>
+      Al fin del archivo, agrega siguiente.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando</span>
+      <p>
+        00 0 * * 4,7 taco8 /etc/cron.weekly/noip.sh
+      </p>
+    </div>
+    <p>
+      Reinicia tu Raspberry Pi. Con este, Raspberry Pi efectuará /etc/cron.weekly/noip.sh cada jueves y domingo alas
+      0:00AM. Tu raspberry está listo para conectarse desde internet por domain.
+    </p>
+    <h2>Configuración de Windows Hosts file</h2>
+    <p>
+      Configurando No-IP, puedes conectar al Raspberry Pi desde afuera de LAN. Pero, no se puede dentro de LAN. Para
+      evitar este problema, hay que configurar "Hosts" en tu Windows (Windows/system32/drivers/etc/hosts). Si tu domain
+      es pezmx.hopto.org y IP de Raspberry Pi es 192.168.15.30, configura como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Windows/system32/drivers/etc/hosts</span>
+      <p>
+        192.168.15.30 pezmx.hopto.org
+      </p>
+    </div>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <section id="ssh-key" class="box">
+    <div class="box-title">Configurar claves de SSH</div>
+    <p>
+      Para ganar más seguridad de SSH, vamos a usar clave secreta en vez de contraseña. Normalmente, la clave se genera
+      en el equipo de cliente, en este caso en Windows. Vamos a encender Windows y lanzar WSL o Cygwin.
+    </p>
+
+    <div class="codebox">
+      <span class="code-title">Comando en Windows</span>
+      <p>
+        $ ssh-keygen -t rsa
+      </p>
+    </div>
+    <p>
+      El sistema pregunta "passphrase". Si quiere, ingresa contraseña que quieres usar para clave de SSH. Puedes
+      dejarlo sin contraseña también. Con este, se generan 2 archivos ~/.ssh/id_rsa y ~/.ssh/id_rsa.pub.
+    </p>
+    <p>
+      Ahora, regresamos al Raspberry Pi. En terminal, creamos directorio ~/.ssh.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Raspberry Pi</span>
+      <p>
+        $ mkdir ~/.ssh
+      </p>
+    </div>
+    <p>
+      Otra vez, regresamos a windows y hacemos comando para enviar id_rsa.pub al Raspberry Pi. Si tu usuario es taco8 y
+      domain es pezmx.hopto.org, el comando sería como sigue. Por configuración de "hosts" arriba, puedes usar el
+      domain también dentro de LAN.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Windows</span>
+      <p>
+        $ scp -P 50123 ~/.ssh/id_rsa.pub taco8@pezmx.hopto.org:/home/taco8
+      </p>
+    </div>
+    <p>
+      Se preguntará la contraseña de usuario. El comando scp es de copia a través de SSH. Ahora
+      registramos la clave en Raspberry Pi. Ingresa comando abajo en el terminal de Raspberry Pi.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Raspberry Pi</span>
+      <p>
+        $ cat ~/id_rsa.pub >> ~/.ssh/authorized_keys
+      </p>
+    </div>
+    <p>
+      Cambiamos permisión de authorized_keys a 600
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Raspberry Pi</span>
+      <p>
+        $ chmod 600 ~/.ssh/authorized_keys
+      </p>
+    </div>
+    <p>
+      Ya id_rsa.pub no es necesario. Favor de eliminarlo. Vamos a hacer prueba de conexión. Si configuraste contraseña
+      de SSH, el sistema lo pregunta y tienes que contestarlo.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Windows</span>
+      <p>
+        $ ssh taco8@pezmx.hopto.org -i ~/.ssh/id_rsa -p 50123
+      </p>
+    </div>
+    <p>
+      Ya que tu Raspberry Pi está accesible desde internet, fortalecemos seguridad más.
+    </p>
+    <div class="codebox">
+      <span class="code-title">Comando en Raspberry Pi</span>
+      <p>
+        $ sudo vi /etc/ssh/sshd_config
+      </p>
+    </div>
+    <p>
+      Busca PasswordAuthientication y PermitRootLogin y cambia como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">/etc/ssh/sshd_confing</span>
+      <p>
+        #Prohibir login por root<br>
+        #PermitRootLogin prohibit-password<br>
+        PermitRootLogin no<br>
+        <br>
+        #Prohibir login por password<br>
+        #PasswordAuthentication yes<br>
+        PasswordAuthentication no<br>
+      </p>
+    </div>
+    <p>
+      Reinicia tu Raspberry Pi. Ahora, tu Raspberry Pi acepta solo SSH por las claves secretas.
+    </p>
+    <p>
+      Finalmente, vamos a configurar .ssh/config de cliente (Windows) para simplificar el comando de SSH a tu Raspberry
+      Pi.
+    </p>
+    <div class="codebox">
+      <span class="code-title">~/.ssh/config (Windows)</span>
+      <p>
+        Host Raspberry<br>
+        HostName pezmx.hopto.org<br>
+        Port 50123<br>
+        User taco8<br>
+        IdentityFile ~/.ssh/
+      </p>
+    </div>
+    <p>
+      En caso de Cygwin, hay que configurar /etc/passwd para hacerlo reconocer .ssh/config.
+    </p>
+    <div class="codebox">
+      <span class="code-title">/etc/passwd original de Cygwin</span>
+      <p>
+        usuario:unused:XXXX:XXX:XXXXXXX-XXXXXXX:<span class="red">/home/usuario:/bin/bash</span>
+      </p>
+    </div>
+    <p>
+      Edítalo como sigue.
+    </p>
+    <div class="codebox">
+      <span class="code-title">/etc/passwd modificado de Cygwin</span>
+      <p>
+        usuario:unused:XXXX:XXX:XXXXXXX-XXXXXXX:<span class="red">cygdrive/c/home/usuario:/bin/bash</span>
+      </p>
+    </div>
+    <p>
+      En cuanto a la parte cygdrive/c/home, tienes que modificar según tu configuración. Puedes checarlo por "pwd" en
+      Cygwin.
+    </p>
+    <p>
+      Ya todo está listo para jugar con SSH!
+    </p>
+    <p><a href="index.html">&lt;Regresar al Indice&gt;</a></p>
+  </section>
+
+  <footer>
+    2018, pezmx.hopto.org
+  </footer>
+</body>
+</html>
